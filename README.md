@@ -5,9 +5,13 @@ Write a handwritten digit classifier for the MNIST database. These are composed 
 In python you can automatically fetch the dataset from the net and load it using the following code:
 
 from sklearn.datasets import fetch_openml
+
 X,y = fetch_openml('mnist_784', version=1, return_X_y=True)
+
 y = y.astype(int)
+
 X = X/255.
+
 This will result in 784-dimensional feature vectors (28*28) of values between 0 (white) and 1 (black).
 
 Train the following classifiers on the dataset:
