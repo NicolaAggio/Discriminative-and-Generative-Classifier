@@ -1,31 +1,56 @@
-from sklearn.datasets import fetch_openml
-from sklearn.model_selection import train_test_split
-import matplotlib.pyplot as plt
+from scipy.spatial import distance
 import numpy as np
 
-# loads the dataset and return the train and test sets
-def loadDataset():
-    # importing the dataset
-    X,y = fetch_openml('mnist_784', version=1, return_X_y=True)
-    y = y.astype(int)
+# returns the k-nearest data points of the given point according to the provided metric. The default metric is 'euclidean'
+def get_neighbors(point, X, k, metric):
+    distances = []
+    neighbors = []
     
-    # deleting the columns with unique values and rescaling
-    X = X[:, ~np.all(X[1:] == X[:-1], axis=0)]
-    X = X/255
+    for i in range(len(X)):
+        elem = X[i]
+        
+        if metric == 'euclidean':
+                dist = distance.euclidean(point, elem)
+        else:
+            if metric == 'cosine':
+                dist = distance.cosine(point, elem)
+            else:
+                if metric == 'manhattan':
+                    dist = distance.manhattan(point, elem)
+                else:
+                    dist = distance.euclidean(point, elem)
+        distances.append((elem, dist, i))
+        distances.sort(key = lambda tupl : tupl[1])
     
-    # splitting the data into train, validation and test
-    X_train_80, X_test, y_train_80, y_test = train_test_split(X, y, test_size = 0.8, random_state = 0)
-    X_train, X_valid , y_train, y_valid = train_test_split(X_train_80, y_train_80, test_size = 0.50, random_state=0)
-    
-    X.to_csv(r'./dataset/X.csv',index=False)
-    y.to_csv(r'./dataset/y.csv',index=False)
-    
-    X_train.to_csv(r'./dataset/X_train.csv',index=False)
-    X_valid.to_csv(r'./dataset/X_valid.csv',index=False)
-    X_test.to_csv(r'./dataset/X_test.csv',index=False)
-    
-    y_train.to_csv(r'./dataset/y_train.csv',index=False)
-    y_valid.to_csv(r'./dataset/y_valid.csv',index=False)
-    y_test.to_csv(r'./dataset/y_test.csv',index=False)
+    for i in range(k + 1):
+        neighbors.append((distances[i][0], distances[i][2]))
+        
+    return neighbors
 
-    return X_train, y_train, X_valid, y_valid, X_test, y_test
+# classifies the given point according to majority vote of the k-nearest neighobors
+def predict(point, X, y, k, metric):
+    classes = []
+    neighbors = get_neighbors(point, X, k, metric)
+    
+    for neighbour in neighbors:
+        pos = neighbour[1]
+        classes.append(y[pos])
+        
+    return max(set(classes), key = classes.count)
+
+# k-nearest neighbors algorithm implementation
+def KNN(X, y, k, metric):
+    classifications = []
+    for i in range (X.shape[0]):
+        point = X[i]
+        classifications.append(predict(point, X, y, k, metric))
+        
+    return classifications 
+
+# calculates the accuracy of a classifier
+def accuracy(actual, predicted):
+    correct = 0
+    for i in range(len(actual)):
+        if actual[i] == predicted[i]:
+            correct += 1
+    return correct / float(len(actual)) 
