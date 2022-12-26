@@ -16,7 +16,7 @@ def get_neighbors(point, X, k, metric):
                 dist = distance.cosine(point, elem)
             else:
                 if metric == 'manhattan':
-                    dist = distance.manhattan(point, elem)
+                    dist = distance.cityblock(point, elem)
                 else:
                     dist = distance.euclidean(point, elem)
         distances.append((elem, dist, i))
