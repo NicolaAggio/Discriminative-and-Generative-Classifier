@@ -45,7 +45,7 @@ def KNN(X, y, k, metric):
         point = X[i]
         classifications.append(predict(point, X, y, k, metric))
         
-    return classifications 
+    return classifications
 
 # calculates the accuracy of a classifier
 def accuracy(actual, predicted):
