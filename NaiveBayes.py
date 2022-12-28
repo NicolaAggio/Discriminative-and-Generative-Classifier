@@ -49,7 +49,7 @@ def calculate_class_probabilities(summaries, row):
 		for i in range(len(class_summaries)):
 			mean, stdev, count = class_summaries[i]
 			# class condition probability
-			probabilities[class_value] = np.log(probabilities[class_value]) + np.log(calculate_probability(row[i], mean, stdev))
+			probabilities[class_value] *= calculate_probability(row[i], mean, stdev)
 
 	return probabilities
 
